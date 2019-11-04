@@ -34,8 +34,13 @@
     </body>
     </html>
 
-#### Init JS
+#### img to inline-svg
 
+	intMap.inlineSvg('.ukrmap').then((values) => {
+		// code
+	});
+
+#### Init JS
     const intMap = new IntMap({
 		color: '#003B61',
 		fontSize: 14,
@@ -49,16 +54,15 @@
 	});
 
 #### List of regions (return array with regions name)
-
     intMap.list();
 
 #### Add text
 
-| option | type | Description |
-| ------------ | ------------ |
-| region_id | string | # + 'region name' from IntMap.list() |
-| text | string | whatever text |
-| default_marker  | bool | Using default marker |
+|  option  |  type  |  Description  |
+| --- | --- | --- |
+|  region_id  |  string  |  # + 'region name' from IntMap.list()  |
+|  text  |  string  |  whatever text  |
+|  default_marker  |  bool  |  Using default marker  |
 
 
 
@@ -67,7 +71,7 @@
 #### Add marker
 
 | option | type | Description |
-| ------------ | ------------ |
+| --- | --- | --- |
 | region_id | string | # + 'region name' from IntMap.list() |
 | marker_url | string | url to marker image |
 | height  | string | marker height |

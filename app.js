@@ -1,9 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
 	const intMap = new IntMap({
 		color: '#003B61',
-		fontSize: 14,
-		fontWeight: 600,
-		fontFamily: 'Open Sans',
 		marker: {
 			url: 'http://127.0.0.1:8080/marker.svg',
 			height: '16px',
@@ -12,7 +9,6 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	intMap.inlineSvg('.ukrmap').then((values) => {
-		console.log(intMap.list());
 		intMap.setText('#Zaporizhia', 'Мелитополь', true);
 
 		intMap.setText('#Crimea', 'Крим', true);
