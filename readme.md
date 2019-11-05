@@ -33,24 +33,33 @@
         <script src="app.js"></script>
     </body>
     </html>
-
-#### img to inline-svg
-
-	intMap.inlineSvg('.ukrmap').then((values) => {
-		// code
-	});
-
 #### Init JS
+|  option  |  type  |  Description  |
+| --- | --- | --- |
+| color | string | text color |
+| fontSize | int | font-size |
+| fontWeight | int | font-weight |
+| fontFamily | string | font-family |
+| multiple | string | multiple points in region (horizontal, vertical) default false |
+| marker | object | default marker settings |
+
     const intMap = new IntMap({
 		color: '#003B61',
 		fontSize: 14,
 		fontWeight: 600,
 		fontFamily: 'Open Sans',
+		multiple: 'horizontal',
 		marker: {
 			url: 'http://127.0.0.1:8080/marker.svg',
 			height: '16px',
 			width: '16px'
 		}
+	});
+	
+#### img to inline-svg
+
+	intMap.inlineSvg('.ukrmap').then((values) => {
+		// code
 	});
 
 #### List of regions (return array with regions name)

@@ -4,6 +4,7 @@ const IntMap = function(params) {
 	this.fontSize = params.fontSize;
 	this.fontWeight = params.fontWeight;
 	this.fontFamily = params.fontFamily;
+	this.multiple = typeof params.multiple !== 'undefined' ? params.multiple : false;
 	this.marker = params.marker;
 
 	this.inlineSvg = (elemName) => {
@@ -47,54 +48,108 @@ const IntMap = function(params) {
 		return document.querySelector(elem).getBBox();
 	};
 
-	this.setText = (id, text, marker) => {
-		if (marker) {
-			self.setMarker(id, this.marker.url, this.marker.height, this.marker.width);
-		}
-
+	this.setText = (id, text, position, marker) => {
 		const element = document.createElementNS('http://www.w3.org/2000/svg', 'text'),
 			path = document.querySelector(id),
 			pos = self.getPosition(id);
 
-		if (path.querySelector('text') !== null) {
-			path.querySelector('text').textContent = text;
+		var prevElement = path.querySelector('text');
+
+		if (document.body.contains(prevElement)) {
+			prevElement.textContent = text;
 			return;
 		}
 
-		const txt = document.createTextNode(text);
+		let textPos = {};
 
-		const parentMiddle = {
-			x: pos.x + pos.width / 2,
-			y: pos.y + pos.height / 2
-		};
+		const txt = document.createTextNode(text);
 
 		element.appendChild(txt);
 		path.appendChild(element);
 
 		const elementSize = element.getBBox();
 
-		const setMiddle = {
-			x: parentMiddle.x - elementSize.width / 2,
-			y: parentMiddle.y - elementSize.height / 2
-		};
+		switch (position) {
+			case 'bottom':
+				const patentBt = {
+					x: pos.x + pos.width / 2,
+					y: pos.y + pos.height
+				};
+
+				textPos = {
+					x: patentBt.x - elementSize.width / 2,
+					y: patentBt.y - elementSize.height / 2
+				};
+				break;
+			case 'top':
+				const patentTop = {
+					x: pos.x + pos.width / 2,
+					y: pos.y + elementSize.height
+				};
+
+				textPos = {
+					x: patentTop.x - elementSize.width / 2,
+					y: patentTop.y - elementSize.height / 2
+				};
+				break;
+			default:
+				const parentMiddle = {
+					x: pos.x + pos.width / 2,
+					y: pos.y + pos.height / 2
+				};
+
+				textPos = {
+					x: parentMiddle.x - elementSize.width / 2,
+					y: parentMiddle.y - elementSize.height / 2
+				};
+				break;
+		}
 
 		element.style.fill = self.color;
 		element.style.fontSize = self.fontSize;
 		element.style.fontFamily = self.fontFamily;
 		element.style.fontWeight = self.fontWeight;
-		element.setAttributeNS(null, 'x', setMiddle.x);
-		element.setAttributeNS(null, 'y', setMiddle.y);
+		element.setAttributeNS(null, 'x', textPos.x);
+		element.setAttributeNS(null, 'y', textPos.y);
+
+		if (marker) {
+			self.textMarker(element);
+		}
 	};
 
-	this.setMarker = (id, url, height, width) => {
+	this.textMarker = (element) => {
+		const textPos = element.getBBox(),
+			parentId = element.parentNode.id;
+
+		let markerPos = {};
+
+		markerPos.x = textPos.x + textPos.width / 2 - parseInt(self.marker.width) / 2;
+		markerPos.y = textPos.y + textPos.height + parseInt(self.marker.height) / 2;
+
+		self.setMarker(
+			'#' + parentId,
+			self.marker.url,
+			self.marker.height,
+			self.marker.width,
+			markerPos.x,
+			markerPos.y
+		);
+	};
+
+	this.setMarker = (id, url, height, width, x, y) => {
 		const element = document.createElementNS('http://www.w3.org/2000/svg', 'image'),
 			path = document.querySelector(id),
 			pos = self.getPosition(id);
 
-		if (path.querySelector('image') !== null) {
-			path.querySelector('image').href = url;
-			return;
+		if (!this.multiple) {
+			var prevElement = path.querySelector('image');
+
+			if (document.body.contains(prevElement)) {
+				prevElement.remove();
+			}
 		}
+
+		let markerPos = {};
 
 		if (url == null || height == null || width == null) {
 			url = this.marker.url;
@@ -102,25 +157,66 @@ const IntMap = function(params) {
 			width = this.marker.width;
 		}
 
-		const parentMiddle = {
-			x: pos.x + pos.width / 2,
-			y: pos.y + pos.height / 2
-		};
+		if (typeof x !== 'undefined' && typeof y !== 'undefined') {
+			markerPos = {
+				x: x,
+				y: y
+			};
+		} else {
+			markerPos = {
+				x: pos.x + pos.width / 2,
+				y: pos.y + pos.height / 2
+			};
+		}
 
 		path.appendChild(element);
 
-		const elementSize = element.getBBox();
-
-		const setMiddle = {
-			x: parentMiddle.x - elementSize.width / 2,
-			y: parentMiddle.y - elementSize.height / 2
-		};
-
 		element.setAttributeNS(null, 'href', url);
-		element.setAttributeNS(null, 'x', setMiddle.x);
-		element.setAttributeNS(null, 'y', parentMiddle.y);
+		element.setAttributeNS(null, 'class', 'mapMarker');
 		element.setAttributeNS(null, 'height', height);
 		element.setAttributeNS(null, 'width', width);
+
+		let imagesList = path.querySelectorAll('image');
+
+		const elementSize = element.getBBox();
+
+		let point = {
+			x: markerPos.x - elementSize.width / 2,
+			y: markerPos.y - elementSize.height / 2
+		};
+
+		if (imagesList.length > 1) {
+			let part = pos.width / imagesList.length,
+				move = part - part / 2;
+
+			switch (this.multiple) {
+				case 'horizontal':
+					[ ...imagesList ].map((node, index) => {
+						// console.log();
+
+						let pointX = pos.x + part * (index + 1) - move;
+
+						node.setAttributeNS(null, 'x', pointX);
+						node.setAttributeNS(null, 'y', markerPos.y);
+					});
+					break;
+				case 'vertical':
+					[ ...imagesList ].map((node, index) => {
+						// console.log();
+
+						let pointY = pos.y + part * (index + 1) - move;
+
+						node.setAttributeNS(null, 'x', point.x);
+						node.setAttributeNS(null, 'y', pointY);
+					});
+					break;
+				default:
+					break;
+			}
+		} else {
+			element.setAttributeNS(null, 'x', point.x);
+			element.setAttributeNS(null, 'y', markerPos.y);
+		}
 	};
 
 	this.list = () => {

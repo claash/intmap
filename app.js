@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
 	const intMap = new IntMap({
 		color: '#003B61',
+		fontFamily: 'Arial',
+		multiple: 'horizontal',
 		marker: {
 			url: 'http://127.0.0.1:8080/marker.svg',
 			height: '16px',
@@ -9,13 +11,18 @@ document.addEventListener('DOMContentLoaded', () => {
 	});
 
 	intMap.inlineSvg('.ukrmap').then((values) => {
-		intMap.setText('#Zaporizhia', 'Мелитополь', true);
+		intMap.setText('#Kyiv', 'Kyiv');
 
-		intMap.setText('#Crimea', 'Крим', true);
+		intMap.setMarker('#Kyiv');
+		intMap.setMarker('#Kyiv');
 
-		intMap.setText('#Donetsk', 'Донецк', true);
+		intMap.setText('#Lutsk', 'Lutsk');
 
-		intMap.setText('#Kharkiv', 'Харьков', true);
 		intMap.setMarker('#Lutsk');
+		intMap.setMarker('#Lutsk');
+		intMap.setMarker('#Lutsk');
+		intMap.setMarker('#Lutsk');
+
+		intMap.setText('#Lutsk', 'Lviv');
 	});
 });
